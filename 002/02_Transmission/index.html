@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ja">
+<meta charset="utf-8">
+<title>センサーの値の表示</title>
+<head>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+window.onload = function(){
+  console.log(location.hostname);
+  var socket = io.connect('http://' + location.hostname);
+
+  //サーバから受け取るイベント
+  socket.on("connect", function () {
+    console.log("-- connect --");
+  });  // 接続時
+  socket.on("disconnect", function (client) {
+    console.log("-- disconnect --");
+  });  // 切断時
+
+  socket.on("message", function (data) {
+    console.log("メッセージ受信");
+    console.log(data);
+    addMessage(data);
+  });
+
+
+  function addMessage (data) {
+    var msg = data.replace( /[!@$%<>'"&|]/g, '' ); //タグ記号とかいくつか削除
+    var list = document.getElementById("msg_list");
+    var element = document.createElement('div');
+    element.innerHTML = msg; 
+    list.insertBefore(element, list.firstChild);
+  }
+}
+</script>
+
+</head>
+<body>
+<h1>センサーの値の表示</h1>
+<form>
+  <div id="msg_list" style="height:300px; overflow:auto;"></div>
+</form>
+</body>
+</html>

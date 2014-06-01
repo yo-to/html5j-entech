@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ja">
+<meta charset="utf-8">
+<title>取得した値の描画</title>
+<head>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="smoothie.js"></script>
+<script>
+window.onload = function(){
+
+  var smoothie = new SmoothieChart({maxValue:1024,minValue:0});
+  smoothie.streamTo(document.getElementById("mycanvas"));
+
+  var line1 = new TimeSeries();
+  smoothie.addTimeSeries(line1);
+
+  console.log(location.hostname);
+  var socket = io.connect('http://' + location.hostname);
+
+  //サーバから受け取るイベント
+  socket.on("connect", function () {
+    console.log("-- connect --");
+  });  // 接続時
+  socket.on("disconnect", function (client) {
+    console.log("-- disconnect --");
+  });  // 切断時
+
+  socket.on("message", function (data) {
+    console.log("メッセージ受信");
+    console.log(data);
+    addMessage(data);
+  });
+
+  function addMessage (data) {
+    var list = document.getElementById("msg_list");
+    var element = document.createElement('div');
+    element.innerHTML = data; 
+    list.insertBefore(element, list.firstChild);
+
+    line1.append(new Date().getTime(), data);
+  }
+}
+</script>
+
+</head>
+<body>
+<p>取得した値の描画</p>
+<canvas id="mycanvas" width="500" height="400"></canvas>
+<div id="msg_list" style="height:300px; overflow:auto;"></div>
+</body>
+</html>
